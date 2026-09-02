@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta name="171fb765a1e95de0dbb537cf37e276505e3257d8" content="171fb765a1e95de0dbb537cf37e276505e3257d8" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Скачать Видео из TikTok без водяного знака — Бесплатно</title>
-    <!-- Подключаем стильный шрифт и иконки -->
+    <title>Скачать Видео из TikTok и YouTube — Бесплатно и Быстро</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <link rel="stylesheet" href="https://cloudflare.com">
     
@@ -126,7 +124,6 @@
             box-shadow: 0 10px 20px rgba(254, 9, 121, 0.3);
         }
 
-        /* Анимация загрузки (Spinner) */
         .spinner {
             display: none;
             width: 24px;
@@ -141,7 +138,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Ошибки и Успех */
         .alert {
             padding: 14px;
             border-radius: 12px;
@@ -182,25 +178,12 @@
             box-shadow: 0 15px 25px rgba(0, 255, 135, 0.4);
         }
 
-        /* Рекламные Слоты */
         .ads-slot {
             width: 100%;
-            min-height: 90px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px dashed rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            overflow: hidden;
         }
     </style>
 </head>
@@ -208,15 +191,23 @@
 
     <div class="container">
         
-        <!-- РЕКЛАМНЫЙ БЛОК РСЯ №1 (Над формой) -->
+        <!-- РЕКЛАМНЫЙ БЛОК №1 (ВЕРХНИЙ БАННЕР) -->
         <div class="ads-slot">
-            <!-- Сюда вставляется код РСЯ (Например, адаптивный баннер) -->
-            Реклама
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : 'f67b5e6fc8a966779471183d2d9eb448',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//://highperformanceformat.com"></script>
         </div>
 
         <header>
-            <h1>TikTok Save Vibe</h1>
-            <p>Скачивай видеоролики без логотипов и водяных знаков в пару кликов</p>
+            <h1>Vibe Downloader</h1>
+            <p>Скачивай медиа из TikTok (без водяного знака) и YouTube в один клик</p>
         </header>
 
         <main class="main-card">
@@ -229,21 +220,21 @@
 
             {% if video_url %}
                 <div class="success-box">
-                    <h3 style="margin-bottom: 10px;">🎉 Ссылка успешно сгенерирована!</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Нажмите кнопку ниже, чтобы открыть и сохранить видео:</p>
-                    <a href="{{ video_url }}" target="_blank" download="tiktok_video.mp4" class="btn-success">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> Скачать MP4 файл
+                    <h3 style="margin-bottom: 10px;">🎉 Файл успешно обработан!</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Нажмите кнопку ниже, чтобы открыть или скачать видео:</p>
+                    <a href="{{ video_url }}" target="_blank" rel="noopener noreferrer" class="btn-success">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> Скачать файл
                     </a>
                 </div>
             {% else %}
                 <form action="/download" method="POST" onsubmit="showLoading()">
                     <div class="input-group">
-                        <i class="fa-brands fa-tiktok"></i>
-                        <input type="url" name="url" placeholder="Вставьте ссылку на TikTok видео..." required autocomplete="off">
+                        <i class="fa-solid fa-link"></i>
+                        <input type="url" name="url" placeholder="Вставьте ссылку на TikTok или YouTube..." required autocomplete="off">
                     </div>
                     
                     <button type="submit" class="btn-submit" id="submit-btn">
-                        <span class="btn-text"><i class="fa-solid fa-wand-magic-sparkles"></i> Получить видео</span>
+                        <span class="btn-text"><i class="fa-solid fa-wand-magic-sparkles"></i> Скачать контент</span>
                         <div class="spinner" id="btn-spinner"></div>
                     </button>
                 </form>
@@ -251,16 +242,9 @@
 
         </main>
 
-        <!-- РЕКЛАМНЫЙ БЛОК РСЯ №2 (Под основной картой) -->
+        <!-- РЕКЛАМНЫЙ БЛОК №2 (НИЖНИЙ) -->
         <div class="ads-slot">
-            <!-- Сюда вставляется код РСЯ (Например, блок директа/InPage) -->
-            Реклама
-        </div>
-
-        <!-- РЕКЛАМНЫЙ БЛОК РСЯ №3 (В самом низу) -->
-        <div class="ads-slot" style="margin-top: auto; min-height: 150px;">
-            <!-- Сюда вставляется код РСЯ (Большой горизонтальный баннер) -->
-            Реклама
+            <!-- Сюда в будущем можно будет вставить второй код из HilltopAds/Adsterra -->
         </div>
 
     </div>
