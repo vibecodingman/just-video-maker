@@ -4,18 +4,16 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import yt_dlp
 
-app = FastAPI(title="TikTok Downloader")
+app = FastAPI(title="Vibe Downloader")
 templates = Jinja2Templates(directory="templates")
 
 
-# Функция извлечения прямой ссылки без водяного знака
-async def get_tiktok_video_url(tiktok_url: str) -> str:
-  # Настройки yt-dlp для TikTok
+# Универсальная функция извлечения прямой ссылки (TikTok и YouTube)
+async def get_video_url(video_url: str) -> str:
   ydl_opts = {
-      'format': 'bestvideo+bestaudio/best',
+      'format': 'bestvideo+bestaudio/best/best',
       'quiet': True,
       'no_warnings': True,
-      # Эмуляция браузера, чтобы TikTok не забанил по IP
       'http_headers': {
           'User-Agent': (
               'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -26,13 +24,11 @@ async def get_tiktok_video_url(tiktok_url: str) -> str:
       },
   }
 
-  # Запуск тяжелой синхронной библиотеки в асинхронном потоке
   loop = asyncio.get_event_loop()
 
   def extract():
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-      info = ydl.extract_info(tiktok_url, download=False)
-      # Пытаемся взять чистую ссылку из форматов или основного url
+      info = ydl.extract_info(video_url, download=False)
       return info.get('url') or info['formats'][0]['url']
 
   try:
@@ -49,18 +45,30 @@ async def home(request: Request):
 
 @app.post('/download')
 async def download_video(request: Request, url: str = Form(...)):
-  if not url or 'tiktok.com' not in url:
+  # Проверяем, что ссылка принадлежит TikTok или YouTube
+  is_valid_url = any(
+      domain in url
+      for domain in [
+          'tiktok.com',
+          'youtube.com',
+          'youtu.be',
+          'shorts',
+      ]
+  )
+
+  if not url or not is_valid_url:
     return templates.TemplateResponse(
         'index.html',
         {
             'request': request,
             'error': (
-                'Пожалуйста, введите корректную ссылку на видео TikTok.'
+                'Пожалуйста, введите корректную ссылку на TikTok или'
+                ' YouTube.'
             ),
         },
     )
 
-  video_url = await get_tiktok_video_url(url)
+  video_url = await get_video_url(url)
 
   if video_url:
     return templates.TemplateResponse(
@@ -72,8 +80,8 @@ async def download_video(request: Request, url: str = Form(...)):
         {
             'request': request,
             'error': (
-                'Не удалось извлечь видео. Возможно, ссылка приватная или'
-                ' TikTok обновил защиту.'
+                'Не удалось извлечь видео. Возможно, оно приватное или'
+                ' сервис изменил защиту.'
             ),
         },
     )
