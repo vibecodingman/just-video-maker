@@ -10,19 +10,18 @@ templates = Jinja2Templates(directory="templates")
 
 # Универсальная функция извлечения прямой ссылки (TikTok и YouTube)
 async def get_video_url(video_url: str) -> str:
-  ydl_opts = {
-      'format': 'bestvideo+bestaudio/best/best',
-      'quiet': True,
-      'no_warnings': True,
-      'http_headers': {
-          'User-Agent': (
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-              ' (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-          ),
-          'Accept': '*/*',
-          'Accept-Language': 'en-US,en;q=0.9',
-      },
-  }
+      ydl_opts = {
+        # Принудительно запрашиваем готовый mp4 со звуком и видео вместе
+        'format': 'best[ext=mp4]/best', 
+        'quiet': True,
+        'no_warnings': True,
+        # Защита от блокировок YouTube: маскируемся под обычного мобильного юзера
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+            'Accept': '*/*',
+            'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+        }
+    }
 
   loop = asyncio.get_event_loop()
 
