@@ -1,41 +1,41 @@
-import asyncio
+import aiohttp
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-import yt_dlp
 
 app = FastAPI(title="Vibe Downloader")
 templates = Jinja2Templates(directory="templates")
 
 
-# Универсальная функция извлечения прямой ссылки (TikTok и YouTube)
+# Универсальная функция извлечения прямой ссылки через стабильное внешнее API
 async def get_video_url(video_url: str) -> str:
-    ydl_opts = {
-        'format': 'best[ext=mp4]/best',
-        'quiet': True,
-        'no_warnings': True,
-        'http_headers': {
-            'User-Agent': (
-                'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X)'
-                ' AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6'
-                ' Mobile/15E148 Safari/604.1'
-            ),
-            'Accept': '*/*',
-            'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-        },
-    }
-
-    loop = asyncio.get_event_loop()
-
-    def extract():
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=False)
-            return info.get('url') or info['formats']['url']
+    # Используем бесплатное стабильное API для обхода блокировок IP
+    api_endpoint = f"https://vreden.my.id{video_url}"
 
     try:
-        return await loop.run_in_executor(None, extract)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(api_endpoint) as response:
+                if response.status == 200:
+                    result = await response.json()
+
+                    if result.get("status") is True:
+                        data = result.get("result", {})
+
+                        # Если скачиваем с YouTube
+                        if (
+                            "youtube.com" in video_url
+                            or "youtu.be" in video_url
+                        ):
+                            # Ищем ссылку в массиве или в корне ответа
+                            return data.get("url") or data.get("video")
+
+                        # Если скачиваем с TikTok
+                        elif "tiktok.com" in video_url:
+                            # Извлекаем чистое видео без водяного знака
+                            return data.get("nowatermark") or data.get("video")
+        return None
     except Exception as e:
-        print(f"Ошибка парсинга: {e}")
+        print(f"Ошибка парсинга через API: {e}")
         return None
 
 
@@ -46,7 +46,7 @@ async def home(request: Request):
 
 @app.post("/download")
 async def download_video(request: Request, url: str = Form(...)):
-    # Проверяем, что ссылка принадлежит TikTok или YouTube
+    # Проверяем валидность введенной ссылки
     is_valid_url = any(
         domain in url
         for domain in ["tiktok.com", "youtube.com", "youtu.be", "shorts"]
@@ -77,7 +77,7 @@ async def download_video(request: Request, url: str = Form(...)):
                 "request": request,
                 "error": (
                     "Не удалось извлечь видео. Возможно, оно приватное или"
-                    " сервис изменил защиту."
+                    " защита сервиса временно обновилась."
                 ),
             },
         )
