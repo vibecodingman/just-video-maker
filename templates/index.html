@@ -133,6 +133,8 @@
             background: rgba(254, 9, 121, 0.1);
             border: 1px solid var(--accent-pink);
             color: #ff4a9a;
+            align-items: center;
+            gap: 10px;
         }
     </style>
 
@@ -178,37 +180,29 @@
             const errorMsg = document.getElementById('error-msg');
             const errorText = document.getElementById('error-text');
 
-            errorMsg.style.display = 'none';
+            if (errorMsg) errorMsg.style.display = 'none';
 
             if (!url) {
-                errorText.innerText = "Пожалуйста, вставьте ссылку.";
-                errorMsg.style.display = 'flex';
+                if (errorText && errorMsg) {
+                    errorText.innerText = "Пожалуйста, вставьте ссылку.";
+                    errorMsg.style.display = 'flex';
+                }
                 return;
             }
 
             if (!url.includes('tiktok.com') && !url.includes('youtube.com') && !url.includes('youtu.be') && !url.includes('shorts')) {
-                errorText.innerText = "Пожалуйста, введите корректную ссылку на TikTok или YouTube.";
-                errorMsg.style.display = 'flex';
+                if (errorText && errorMsg) {
+                    errorText.innerText = "Пожалуйста, введите корректную ссылку на TikTok или YouTube.";
+                    errorMsg.style.display = 'flex';
+                }
                 return;
             }
 
-            let redirectUrl = "";
+            // Формируем прямую ссылку на обработку внутри сервиса get-save.com
+            const redirectUrl = "https://get-save.com" + encodeURIComponent(url);
 
-            // Если пользователь качает с YouTube
-            if (url.includes('youtube.com') || url.includes('youtu.be') || url.includes('shorts')) {
-                // Превращаем youtube.com/... в ://ssyoutube.com... для мгновенного скачивания
-                redirectUrl = url.replace("youtube.com", "ssyoutube.com").replace("youtu.be/", "://ssyoutube.comwatch?v=");
-            } 
-            // Если пользователь качает с TikTok
-            else if (url.includes('tiktok.com')) {
-                // Перенаправляем на стабильный глобальный шлюз загрузки TikTok роликов
-                redirectUrl = "https://savefrom.net" + encodeURIComponent(url);
-            }
-
-            // Открываем стабильную страницу скачивания в новой вкладке браузера
-            if (redirectUrl) {
-                window.open(redirectUrl, '_blank');
-            }
+            // Открываем в новой вкладке, чтобы ваш сайт оставался открытым у пользователя
+            window.open(redirectUrl, '_blank');
         }
     </script>
 </body>
