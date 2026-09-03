@@ -7,7 +7,7 @@ app = FastAPI(title="Vibe Downloader")
 templates = Jinja2Templates(directory="templates")
 
 # Вставьте ваш скопированный секретный ключ из RapidAPI между кавычек
-RAPIDAPI_KEY = "ВАШ_КЛЮЧ_ИЗ_RAPIDAPI"
+RAPIDAPI_KEY = "8aa121c8d0mshc92246aa33b6e2fp182f38jsn13d2d10fc09b"
 
 
 async def get_video_url(video_url: str) -> str:
