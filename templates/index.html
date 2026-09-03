@@ -198,11 +198,11 @@
                 return;
             }
 
-            // Формируем прямую ссылку на обработку внутри сервиса get-save.com
+            // Формируем ссылку на get-save.com
             const redirectUrl = "https://get-save.com" + encodeURIComponent(url);
 
-            // Открываем в новой вкладке, чтобы ваш сайт оставался открытым у пользователя
-            window.open(redirectUrl, '_blank');
+            // Перенаправляем пользователя прямо в текущей вкладке (обороняет от блокировок браузеров)
+            window.location.href = redirectUrl;
         }
     </script>
 </body>
