@@ -31,13 +31,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             padding: 20px;
         }
 
         .container {
             width: 100%;
             max-width: 550px;
-            margin-top: 40px;
             display: flex;
             flex-direction: column;
             gap: 24px;
@@ -124,80 +124,37 @@
             box-shadow: 0 10px 20px rgba(254, 9, 121, 0.3);
         }
 
-        .spinner {
+        .result-box {
             display: none;
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .alert {
-            padding: 14px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .alert-error {
-            background: rgba(254, 9, 121, 0.1);
-            border: 1px solid var(--accent-pink);
-            color: #ff4a9a;
-        }
-
-        .success-box {
+            margin-top: 20px;
             text-align: center;
             animation: fadeIn 0.5s ease;
         }
 
-        .btn-success {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #00ff87;
-            color: #000;
-            padding: 16px 30px;
-            border-radius: 14px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.1rem;
+        iframe {
+            width: 100%;
+            height: 60px;
+            border: none;
             margin-top: 15px;
-            box-shadow: 0 10px 20px rgba(0, 255, 135, 0.2);
-            transition: all 0.2s;
-        }
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 25px rgba(0, 255, 135, 0.4);
+            border-radius: 14px;
         }
 
-        .ads-slot {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+        .alert-error {
+            display: none;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            background: rgba(254, 9, 121, 0.1);
+            border: 1px solid var(--accent-pink);
+            color: #ff4a9a;
         }
     </style>
-</head>
-<body>
 
-    <div class="container">
-        
-<!-- РЕКЛАМНЫЙ БЛОК №1 (ВЕРХНИЙ БАННЕР) -->
-<div class="ads-slot">
+    <!-- РЕКЛАМНЫЙ КОД (IN-PAGE PUSH) ИЗ HILLTOPADS -->
     <script>
     (function(jcobpi){
-    var d = document,
-        s = d.createElement('script'),
-        l = d.scripts[d.scripts.length - 1];
+    var d = document, s = d.createElement('script'), l = d.scripts[d.scripts.length - 1];
     s.settings = jcobpi || {};
     s.src = "\/\/shameful-farm.com\/b.X\/V\/s\/dPG\/l\/0TYqWXcp\/Re\/m\/9TuzZbUFlKkSPDTYcwzhNQzQcQzMOADbUStUNRzwMM3\/NHz\/M\/4POkQD";
     s.async = true;
@@ -205,62 +162,66 @@
     l.parentNode.insertBefore(s, l);
     })({})
     </script>
-</div>
+</head>
+<body>
 
+    <div class="container">
         <header>
             <h1>Vibe Downloader</h1>
             <p>Скачивай медиа из TikTok (без водяного знака) и YouTube в один клик</p>
         </header>
 
         <main class="main-card">
+            <div class="alert-error" id="error-msg">
+                <i class="fa-solid fa-circle-exclamation"></i> <span id="error-text"></span>
+            </div>
+
+            <div class="input-group">
+                <i class="fa-solid fa-link"></i>
+                <input type="url" id="video-url-input" placeholder="Вставьте ссылку на TikTok или YouTube..." required autocomplete="off">
+            </div>
             
-            {% if error %}
-                <div class="alert alert-error">
-                    <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
-                </div>
-            {% endif %}
+            <button type="button" onclick="startDownload()" class="btn-submit" id="submit-btn">
+                <span class="btn-text"><i class="fa-solid fa-wand-magic-sparkles"></i> Скачать контент</span>
+            </button>
 
-            {% if video_url %}
-                <div class="success-box">
-                    <h3 style="margin-bottom: 10px;">🎉 Файл успешно обработан!</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Нажмите кнопку ниже, чтобы открыть или скачать видео:</p>
-                    <a href="{{ video_url }}" target="_blank" rel="noopener noreferrer" class="btn-success">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> Скачать файл
-                    </a>
-                </div>
-            {% else %}
-                <form action="/download" method="POST" onsubmit="showLoading()">
-                    <div class="input-group">
-                        <i class="fa-solid fa-link"></i>
-                        <input type="url" name="url" placeholder="Вставьте ссылку на TikTok или YouTube..." required autocomplete="off">
-                    </div>
-                    
-                    <button type="submit" class="btn-submit" id="submit-btn">
-                        <span class="btn-text"><i class="fa-solid fa-wand-magic-sparkles"></i> Скачать контент</span>
-                        <div class="spinner" id="btn-spinner"></div>
-                    </button>
-                </form>
-            {% endif %}
-
+            <!-- Сюда умный виджет подгрузит кнопку скачивания -->
+            <div class="result-box" id="result-container">
+                <h3 style="font-size: 1rem; color: var(--text-muted);">🎉 Кнопка скачивания готова:</h3>
+                <div id="widget-target"></div>
+            </div>
         </main>
-
-        <!-- РЕКЛАМНЫЙ БЛОК №2 (НИЖНИЙ) -->
-        <div class="ads-slot">
-            <!-- Сюда в будущем можно будет вставить второй код из HilltopAds/Adsterra -->
-        </div>
-
     </div>
 
     <script>
-        function showLoading() {
-            const btnText = document.querySelector('.btn-text');
-            const spinner = document.getElementById('btn-spinner');
-            const btn = document.getElementById('submit-btn');
+        function startDownload() {
+            const url = document.getElementById('video-url-input').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            const errorText = document.getElementById('error-text');
+            const resultContainer = document.getElementById('result-container');
+            const widgetTarget = document.getElementById('widget-target');
+
+            errorMsg.style.display = 'none';
+            resultContainer.style.display = 'none';
+
+            if (!url) {
+                errorText.innerText = "Пожалуйста, вставьте ссылку.";
+                errorMsg.style.display = 'flex';
+                return;
+            }
+
+            if (!url.includes('tiktok.com') && !url.includes('youtube.com') && !url.includes('youtu.be') && !url.includes('shorts')) {
+                errorText.innerText = "Пожалуйста, введите корректную ссылку на TikTok или YouTube.";
+                errorMsg.style.display = 'flex';
+                return;
+            }
+
+            // Генерируем безопасный и надежный iframe-виджет загрузки SaveFrom
+            const encodedUrl = encodeURIComponent(url);
+            widgetTarget.innerHTML = `<iframe src="https://savefrom.net{encodedUrl}&css=1" allowtransparency="true"></iframe>`;
             
-            btnText.style.display = 'none';
-            spinner.style.display = 'block';
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.8';
+            // Плавно показываем блок с кнопкой
+            resultContainer.style.display = 'block';
         }
     </script>
 </body>
