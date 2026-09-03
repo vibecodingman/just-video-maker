@@ -6,64 +6,44 @@ from fastapi.templating import Jinja2Templates
 app = FastAPI(title="Vibe Downloader")
 templates = Jinja2Templates(directory="templates")
 
-# Ваш проверенный ключ из RapidAPI
-RAPIDAPI_KEY = "8aa121c8d0mshc92246aa33b6e2fp182f38jsn13d2d10fc09b"
 
-
-# Рекурсивный поиск любой рабочей ссылки в JSON ответе
-def find_url_in_dict(data):
-  if isinstance(data, str) and (
-      data.startswith('http://') or data.startswith('https://')
-  ):
-    if '.mp4' in data or 'googlevideo' in data or 'tiktokcdn' in data:
-      return data
-  if isinstance(data, dict):
-    for key, value in data.items():
-      # Приоритет для чистых видео без водяных знаков
-      if key in ['nowatermark', 'url', 'video', 'link', 'download_url']:
-        res = find_url_in_dict(value)
-        if res:
-          return res
-      res = find_url_in_dict(value)
-      if res:
-        return res
-  if isinstance(data, list):
-    for item in data:
-      res = find_url_in_dict(item)
-      if res:
-        return res
-  return None
-
-
+# Полностью анонимная функция скачивания через свободный публичный шлюз
 async def get_video_url(video_url: str) -> str:
-  # Используем самый популярный и стабильный шлюз на маркетплейсе
-  api_url = 'https://rapidapi.com'
-
-  payload = {'url': video_url}
-
-  headers = {
-      'x-rapidapi-key': RAPIDAPI_KEY,
-      'x-rapidapi-host': '://rapidapi.com',
-      'Content-Type': 'application/json',
-  }
+  # Используем стабильное бесплатное API, не требующее ключей и карт
+  api_endpoint = f'https://dilame.net{video_url}'
 
   try:
     async with aiohttp.ClientSession() as session:
-      async with session.post(
-          api_url, json=payload, headers=headers, timeout=15
-      ) as response:
+      async with session.get(api_endpoint, timeout=12) as response:
         if response.status == 200:
           result = await response.json()
 
-          # Запускаем умный поиск ссылки внутри ответа API
-          direct_url = find_url_in_dict(result)
-          if direct_url:
-            return direct_url
-        else:
-          print(f'API вернуло статус: {response.status}')
-    return None
+          if result.get('success') is True or result.get('status') == 'success':
+            data = result.get('data', {})
+
+            # Логика для TikTok
+            if 'tiktok.com' in video_url:
+              return (
+                  data.get('nowatermark')
+                  or data.get('video_url')
+                  or data.get('url')
+              )
+
+            # Логика для YouTube / Shorts
+            elif 'youtube.com' in video_url or 'youtu.be' in video_url:
+              # Ищем лучший формат mp4 со звуком
+              formats = data.get('formats', [])
+              if formats:
+                for f in formats:
+                  if f.get('ext') == 'mp4' and f.get('acodec') != 'none':
+                    return f.get('url')
+                return formats[0].get('url')
+              return data.get('url') or data.get('video_url')
+
+        print(f'API ответило со статусом: {response.status}')
+        return None
   except Exception as e:
-    print(f'Ошибка вызова RapidAPI: {e}')
+    print(f'Ошибка анонимного API: {e}')
     return None
 
 
@@ -103,8 +83,8 @@ async def download_video(request: Request, url: str = Form(...)):
         {
             'request': request,
             'error': (
-                'Не удалось извлечь видео. Убедитесь, что вы активировали'
-                ' бесплатный тариф на RapidAPI (нажали Subscribe).'
+                'Не удалось извлечь видео. Возможно, защита сервиса временно'
+                ' обновилась, попробуйте другую ссылку.'
             ),
         },
     )
